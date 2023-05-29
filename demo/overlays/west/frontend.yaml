@@ -1,0 +1,89 @@
+# Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "hello-world-frontend" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "hello-world-frontend" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "hello-world-frontend" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "hello-world-frontend" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+# deployment.apps/hello-world-frontend created
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-frontend
+    app.kubernetes.io/component: hello-world-frontend
+    app.kubernetes.io/instance: hello-world-frontend
+  name: hello-world-frontend
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations:
+        openshift.io/imported-from: quay.io/skupper/hello-world-frontend
+      from:
+        kind: DockerImage
+        name: quay.io/skupper/hello-world-frontend
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"hello-world-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"hello-world-frontend\")].image"}]'
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-frontend
+    app.kubernetes.io/component: hello-world-frontend
+    app.kubernetes.io/instance: hello-world-frontend
+  name: hello-world-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: hello-world-frontend
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        deployment: hello-world-frontend
+    spec:
+      containers:
+        - image: ' '
+          name: hello-world-frontend
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-frontend
+    app.kubernetes.io/component: hello-world-frontend
+    app.kubernetes.io/instance: hello-world-frontend
+  name: hello-world-frontend
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    deployment: hello-world-frontend
+  # line added. move to patch:
+  type: LoadBalancer
+status:
+  loadBalancer: {}

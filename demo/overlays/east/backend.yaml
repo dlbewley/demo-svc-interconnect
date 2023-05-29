@@ -1,0 +1,92 @@
+# oc new-app \
+#   --image=quay.io/skupper/hello-world-backend \
+#   --namespace=east \
+#   --name=hello-world-backend \
+#   --dry-run \
+#   -o yaml yq '.items[] | split_doc' \
+#   > ovelays/east/backend.yaml
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-backend
+    app.kubernetes.io/component: hello-world-backend
+    app.kubernetes.io/instance: hello-world-backend
+  name: hello-world-backend
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+    - annotations:
+        openshift.io/imported-from: quay.io/skupper/hello-world-backend
+      from:
+        kind: DockerImage
+        name: quay.io/skupper/hello-world-backend
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+status:
+  dockerImageRepository: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"hello-world-backend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"hello-world-backend\")].image"}]'
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-backend
+    app.kubernetes.io/component: hello-world-backend
+    app.kubernetes.io/instance: hello-world-backend
+  name: hello-world-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: hello-world-backend
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp: null
+      labels:
+        deployment: hello-world-backend
+    spec:
+      containers:
+        - image: ' '
+          name: hello-world-backend
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewApp
+  creationTimestamp: null
+  labels:
+    app: hello-world-backend
+    app.kubernetes.io/component: hello-world-backend
+    app.kubernetes.io/instance: hello-world-backend
+  name: hello-world-backend
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    deployment: hello-world-backend
+status:
+  loadBalancer: {}
