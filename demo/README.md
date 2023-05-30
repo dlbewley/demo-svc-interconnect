@@ -19,6 +19,12 @@ skupper token create -n $CLUSTER link-secret.yaml
 
 oc apply -k overlays/east
 skupper link create -n east link-secret.yaml
+
+skupper expose deployment hello-world-backend -n east --port 8080 --protocol tcp
+
+# patch service with
+    application: skupper-router
+    skupper.io/component: router
 ```
 
 ## Skupper Init
@@ -107,14 +113,16 @@ oc new-app \
   --namespace=west \
   --name=hello-world-frontend \
   --dry-run \
-  -o yaml yq '.items[] | split_doc' \
-  > ovelays/west/fronend.yaml
+  -o yaml \
+  | yq '.items[] | split_doc' \
+  > ovelays/west/frontend.yaml
 
 oc new-app \
   --image=quay.io/skupper/hello-world-backend \
   --namespace=east \
   --name=hello-world-backend \
   --dry-run \
-  -o yaml yq '.items[] | split_doc' \
+  -o yaml \
+  | yq '.items[] | split_doc' \
   > ovelays/east/backend.yaml
 ```
